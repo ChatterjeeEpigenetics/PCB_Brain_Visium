@@ -10,6 +10,7 @@
 # Summary: PCB Spatial Transcriptomics data
 # Written by: Budhaditya Basu
 # Date: 06/10/2024
+# Revision: 10/01/2025
 
 library(Seurat)
 library(circlize)
@@ -376,6 +377,85 @@ Stacked_VlnPlot(merged, features = c("Tcf4", "Mef2a", "Spock1", "Dpysl2", "Morf4
                 plot_legend = TRUE)
 dev.off()
 
+# Box Plot of selected genes
+#===============================================================================
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Box_plot_Gapdh.pdf",
+    height = 8, width = 8)
+do_BoxPlot(merged, feature = "Gapdh",
+           split.by = "treatment",
+           slot = "counts",
+           xlab = "")+
+  scale_fill_manual(values = c("Control"="lightblue",
+                               "PCB"="maroon"))
+dev.off()
+
+p1 <- do_BoxPlot(merged, feature = "Spock1", 
+                 split.by = "treatment", 
+                 slot = "counts",
+                 xlab = "",
+                 legend.position = "none")+
+  scale_fill_manual(values = c("Control"="lightblue", 
+                               "PCB"="maroon"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+p2 <- do_BoxPlot(merged, feature = "Dpysl2", 
+                 split.by = "treatment", 
+                 slot = "counts",
+                 xlab = "",
+                 legend.position = "none")+
+  scale_fill_manual(values = c("Control"="lightblue", 
+                               "PCB"="maroon"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3 <- do_BoxPlot(merged, feature = "Gstp1", 
+                 split.by = "treatment", 
+                 slot = "counts",
+                 xlab = "",
+                 legend.position = "none")+
+  scale_fill_manual(values = c("Control"="lightblue", 
+                               "PCB"="maroon"))+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p4 <- do_BoxPlot(merged, feature = "Morf4l1", 
+                 split.by = "treatment", 
+                 slot = "counts",
+                 xlab = "",
+                 legend.position = "right")+
+  scale_fill_manual(values = c("Control"="lightblue", 
+                               "PCB"="maroon"))
+
+p1/p2/p3/p4
+
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Box_plot_stacked.pdf",
+    height = 12, width = 10)
+p1/p2/p3/p4
+dev.off()
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Export QC data
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+control1_summary <- read.csv("/home/bbasu/LSS/lss_schatterj/PCB_visium_v1/Control_1/outs/metrics_summary.csv")
+control2_summary <- read.csv("/home/bbasu/LSS/lss_schatterj/PCB_visium_v1/Control_2/outs/metrics_summary.csv")
+pcb1_summary <- read.csv("/home/bbasu/LSS/lss_schatterj/PCB_visium_v1/PCB_1/outs/metrics_summary.csv")
+pcb2_summary <- read.csv("/home/bbasu/LSS/lss_schatterj/PCB_visium_v1/PCB_2/outs/metrics_summary.csv")
+
+
+combined_qc <- rbind(control1_summary, control2_summary,
+                     pcb1_summary, pcb2_summary)
+combined_qc$`Age (months)` <- 3
+combined_qc$Sex <- "Male"
+combined_qc$condition <- c("Vehicle", "Vehicle", "HR-PCB", "HR-PCB")
+combined_qc$slide_number <- "V13Y08-074"
+combined_qc$area_number <- c("A1", "C1", "B1", "D1")
+combined_qc$`#replicate_sections_mounted` <- 2
+
+combined_qc <- as.data.frame(t(combined_qc))
+
+
+write.xlsx(combined_qc, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/QC_data_combined.xlsx", 
+           rowNames = TRUE)
 
 # Marker genes for all clusters
 #===============================================================================
@@ -429,6 +509,55 @@ DotPlot_scCustom(merged, features = c("Cux1", "Cux2",
                                       "Lef1", "Gbx2", 
                                       "Lct", "Crlf1",
                                       "Adora2a", "Gpr6"))
+dev.off()
+
+# Neocortex marker
+p1 <- SpatialFeaturePlot(merged, features = "Myl4", pt.size.factor = 3, images = "Control_1.2")
+p2 <- SpatialFeaturePlot(merged, features = "Trbc2", pt.size.factor = 3, images = "Control_1.2")
+p3 <- SpatialFeaturePlot(merged, features = "Hs3st2", pt.size.factor = 3, images = "Control_1.2")
+
+# Fiber tracts marker
+p4 <- SpatialFeaturePlot(merged, features = "Sox10", pt.size.factor = 3, images = "Control_1.2")
+p5 <- SpatialFeaturePlot(merged, features = "Olig2", pt.size.factor = 3, images = "Control_1.2")
+p6 <- SpatialFeaturePlot(merged, features = "Opalin", pt.size.factor = 3, images = "Control_1.2")
+
+# Hippocampus marker
+p7 <- SpatialFeaturePlot(merged, features = "C1ql2", pt.size.factor = 3, images = "Control_1.2")
+p8 <- SpatialFeaturePlot(merged, features = "Lct", pt.size.factor = 3, images = "Control_1.2")
+p9 <- SpatialFeaturePlot(merged, features = "Npy2r", pt.size.factor = 3, images = "Control_1.2")
+
+# Thalamus marker
+p10 <- SpatialFeaturePlot(merged, features = "Smpx", pt.size.factor = 3, images = "Control_1.2")
+p11 <- SpatialFeaturePlot(merged, features = "Atp2a1", pt.size.factor = 3, images = "Control_1.2")
+p12 <- SpatialFeaturePlot(merged, features = "Lef1", pt.size.factor = 3, images = "Control_1.2")
+
+# Caudoputamen marker
+p13 <- SpatialFeaturePlot(merged, features = "Adora2a", pt.size.factor = 3, images = "Control_1.2")
+p14 <- SpatialFeaturePlot(merged, features = "Gpr6", pt.size.factor = 3, images = "Control_1.2")
+p15 <- SpatialFeaturePlot(merged, features = "Sh3rf2", pt.size.factor = 3, images = "Control_1.2") 
+
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Canonical_Marker_genes_PCB_neocortex_fibretract.pdf", 
+    height = 8, width =10)
+(p1+p2+p3)/(p4+p5+p6)
+dev.off()
+
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Canonical_Marker_genes_PCB_hippo_thalamus.pdf", 
+    height = 8, width =10)
+(p7+p8+p9)/(p10+p11+p12)
+dev.off()
+
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Canonical_Marker_genes_PCB_caudoputamen_thalamus.pdf", 
+    height = 8, width =10)
+(p10+p11+p12)/(p13+p14+p0)
+dev.off()
+
+pdf(file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Canonical_Marker_genes_PCB_all.pdf", 
+    height = 12, width =10)
+FeaturePlot_scCustom(merged, features = c("Myl4", "Trbc2", "Hs3st2",
+                                          "Sox10", "Olig2", "Opalin",
+                                          "Lef1", "Atp2a1", "Smpx",
+                                          "Lct", "C1ql2", "Npy2r",
+                                          "Adora2a", "Gpr6"), num_columns = 3)
 dev.off()
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -550,21 +679,34 @@ table(Idents(merged), merged$orig.ident)
 table(Idents(merged), merged$treatment)
 
 
-###Proportion of each cluster by condition
-prop.table(table(Idents(merged), merged$treatment), margin = 2)
+# Proportion animal level
+#===============================================================================
+prop_df <- merged@meta.data %>%
+  group_by(orig.ident, treatment, celltype) %>%
+  summarise(n = n()) %>%
+  group_by(orig.ident, treatment) %>%
+  mutate(prop = n / sum(n)) %>%
+  ungroup()
 
-##Fisher's test to evaluate the power of cell composition analysis
-library(rstatix)
-test <- rstatix::row_wise_fisher_test(as.matrix(table(Idents(merged), 
-                                                      merged$treatment)),
-                                      p.adjust.method = "BH")
+write.xlsx(prop_df, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/CelltypeProportion_data.xlsx", rowNames = FALSE)
 
-test
-write.csv(test, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/Fisher_test_for_cell_composition_analysis.csv",
-          row.names = F)
+wilcox_results <- prop_df %>%
+  group_by(celltype) %>%
+  summarise(
+    p_value = wilcox.test(prop ~ treatment)$p.value,
+    mean_prop_ctrl = mean(prop[treatment == "Control"]),
+    mean_prop_trt  = mean(prop[treatment == "PCB"]),
+    diff = mean_prop_trt - mean_prop_ctrl
+  ) %>%
+  mutate(p_adj = p.adjust(p_value, method = "BH")) # Benjamini & Hochberg /FDR
+?p.adjust
+
+write.xlsx(wilcox_results, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Wilcox_result_proportion_analysis.xlsx",
+           rowNames = FALSE)
+
 ###Keep the proportion in a data frame for plotting
 df <- as.data.frame(prop.table(table(Idents(merged), 
-                                     merged$treatment), margin = 2))
+                                     merged$orig.ident), margin = 2))
 df$Freq <- round(df$Freq, 2)
 
 head(df)
@@ -587,432 +729,181 @@ plot <- ggbarplot(df, x = "Var2", y = "Freq", fill = "Var1",
 
 
 plot
-ggsave(filename = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/7_CelltypeProportion.pdf",
+ggsave(filename = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/CelltypeProportion_animal_level.pdf",
        plot,
        height = 6,
-       width = 6,
+       width = 8,
        units = "in",
        dpi = 600)
 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Make a GO enrichment heatmap
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+library(tidyverse)
+library(org.Mm.eg.db)
+library(clusterProfiler)
+library(enrichplot)
+library(Seurat)
+library(ComplexHeatmap)
+library(circlize)
+library(openxlsx)
 
 DEG <- readRDS("/home/bbasu/LSS/lss_schatterj/PCB_data/DEG_regions_PCB.rds")
-
-# Filter significant upregulated genes
+# Filter significant genes
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-DEG_sig_up <- list()
+DEG_sig <- list()
+
 for(i in names(DEG)){
   cluster = i
   message("Doing analysis for ", cluster)
   cellType.DEGs = DEG[[cluster]]
   gene.list <- cellType.DEGs %>%
-    dplyr::filter(avg_log2FC > 0.20 & p_val_adj < 0.05)%>%
+    dplyr::filter(abs(avg_log2FC) > 0.20 & p_val_adj < 0.05)%>%
     tibble::rownames_to_column(var = "gene")%>%
     dplyr::mutate(Cluster = cluster)
-  DEG_sig_up[[cluster]] <- gene.list
+  gene.list$entrez <- mapIds(x = org.Mm.eg.db,
+                             keys = gene.list$gene,
+                             column = "ENTREZID",
+                             keytype = "SYMBOL",
+                             multiVals = "first")
+  gene.list$group <- "Upregulated"
+  gene.list$group[gene.list$avg_log2FC < 0] <- "Downregulated"
+  DEG_sig[[cluster]] <- gene.list
 }
 
-# Make a heatmap of the upregulated genes across the clusters
-#===============================================================================
-# Extract logFC matrix (per cluster)
-expr_mat <- DEG_sig_up %>%
-  bind_rows()%>%
-  dplyr::select(gene, avg_log2FC, Cluster)%>%
-  spread(key = "gene", value = "avg_log2FC")%>%
-  tibble::column_to_rownames(var = "Cluster")%>%
-  t()
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Perform KEGG enrichment across all data
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+mydf <- bind_rows(DEG_sig)
 
-# Replace NA value with 0
-expr_mat[is.na(expr_mat)] <- 0
-
-# Replace all positive values with 1 to show one color with red
-expr_mat[expr_mat > 0] <- 1
-
-expr_mat <- as.data.frame(expr_mat)
-mat <- expr_mat
-colnames(mat)
-#===============================================================================
-# Order the column names of the matrix
-custom_order <- c("Neocortex", "Fiber tracts", "Thalamus", "Hippocampal region", "Caudoputamen")
-mat <- mat[, c("Neocortex", "Fiber tracts", "Thalamus", "Hippocampal region", "Caudoputamen")]
-
-#===============================================================================
-# Reorder the rows to first show unique genes, then common genes
-common_genes <- row.names(mat[rowSums(mat)> 1, ])
-unique_genes <- row.names(mat[rowSums(mat)== 1, ])
-
-# filter the matrix that shows unique genes
-unique_gene_mat <- mat[unique_genes, ]
-
-# Now filter unique genes from each cluster
-neocortex.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Neocortex"] == 1, ])
-fiber.tracts.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Fiber tracts"] == 1, ])
-thalamus.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Thalamus"] == 1, ])
-hippocampus.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Hippocampal region"] == 1, ])
-caudoputamen.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Caudoputamen"] == 1, ])
-
-# Gene order [First the unique genes from each cluster and then the common genes]  
-ordered_genes <- c(neocortex.genes, fiber.tracts.genes,
-                   thalamus.genes, hippocampus.genes,
-                   caudoputamen.genes, common_genes)
-
-#===============================================================================
-# Split the heatmap at desired rows (at each cluster's unique genes) so that it would be easy to show GO terms
-length(neocortex.genes) #22
-length(fiber.tracts.genes) #66
-length(thalamus.genes) #49
-length(hippocampus.genes) #67
-length(caudoputamen.genes) #15
-length(common_genes) # 64
+enrich_kegg <- compareCluster(data=mydf, 
+                              entrez~group+Cluster,  
+                              fun="enrichKEGG",
+                              organism = 'mmu')
+# Convert EntrezID to Gene Symbol
+kegg <- setReadable(enrich_kegg, OrgDb = org.Mm.eg.db, keyType="ENTREZID")
+Kegg_data <- kegg@compareClusterResult 
+# Store the data
+write.xlsx(Kegg_data, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Compare_Cluster_KEGG_data.xlsx", rowNames = FALSE)
 
 
-row_split <- rep(c("Neocortex", "Fiber tracts", 
-                   "Thalamus", "Hippocampal region", 
-                   "Caudoputamen", "common"), 
-                 times = c(22, 66, 49, 67, 15, 64))
-
-# Turn into a factor with custom order: 
-row_split <- factor(row_split, levels = c("Neocortex", "Fiber tracts", "Thalamus", 
-                                          "Hippocampal region", "Caudoputamen", "common"))
-
-length(row_split)
-nrow(mat)
-length(unique_genes)
-length(ordered_genes)
-length(common_genes)
-#===============================================================================
-# Annotate the GO terms associated with unique and common genes
-
-# Perform GO enrichment on the unique upregulated genes
-gene_list <- list("Neocortex" = neocortex.genes, 
-                  "Fiber tracts" = fiber.tracts.genes,
-                  "Thalamus" = thalamus.genes, 
-                  "Hippocampal region" = hippocampus.genes,
-                  "Caudoputamen" = caudoputamen.genes,
-                  "common.genes" = common_genes)
-
-# Trycatch was used to ignore errors associated with any cluster
-go_results <- lapply(gene_list, function(genes){
-  tryCatch(ego <- enrichGO(gene          = genes,
-                           OrgDb         = org.Mm.eg.db, 
-                           ont           = "MF",
-                           pAdjustMethod = "BH",
-                           pvalueCutoff  = 0.01,
-                           qvalueCutoff  = 0.05,
-                           keyType = "SYMBOL",
-                           readable      = TRUE), error=function(e) NULL)
-  tryCatch(ego@result, error=function(e) NULL)
-})
-
-# Check the pathways and the gene names (genes to annotate!)
-neocortex_GO <- go_results$Neocortex
-fiber_tracts_GO <- go_results$`Fiber tracts`
-thalamus_GO <- go_results$Thalamus
-hippo_GO <- go_results$`Hippocampal region`
-caudoputamen_GO <- go_results$Caudoputamen
-common_GO <- go_results$common.genes
-
-
-# GO_terms = lapply(go_results, function(df) {
-#   terms <- df$Description %>% head(3)
-# })
-
-# Save the MF enrichment result
-write.xlsx(go_results, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/Upregulated_GO_MF_all_regions_unique_common.xlsx", 
-           rowNames = F)
-
-#===============================================================================
-# colors_celltype <- paletteer::paletteer_d("ggthemes::Tableau_10")
-
-# Annotate celltypes
-ha = HeatmapAnnotation(df = data.frame(Celltypes = c("Neocortex", "Fiber tracts", "Thalamus", 
-                                                     "Hippocampal region", "Caudoputamen")),
-                       col = list(Celltypes = c("Neocortex"="#1CBE4FFF",
-                                                "Fiber tracts"= "#C4451CFF",
-                                                "Thalamus"="#90AD1CFF",
-                                                "Hippocampal region"="#782AB6FF",
-                                                "Caudoputamen"="#1C7F93FF")),
-                       annotation_legend_param = list(title = "Celltype",
-                                                      title_gp = gpar(fontsize = 10,
-                                                                      fontface = "bold")),
-                       annotation_name_side = "left",
-                       simple_anno_size = unit(2, "mm"))
-
-#===============================================================================
-# Annotate gene names
-mat <- mat[ordered_genes, custom_order]
-
-ann <- mat %>%
-  dplyr::filter(rownames(mat) %in% c("Gstm1", "Gstm5",
-                                     "Arpp19", "Cnih3", "Fkbp1a", "Fxyd7", "Kcnip3", "Kcnmb4", "Ywhah",
-                                     "Fau", "Mrpl30", "Rpl11", "Rpl18", "Rpl18a", "Rpl24", "Rpl27a", "Rps15", "Rps20",
-                                     "Rpl10", "Rpl10a", "Rpl12", "Rpl13", "Rpl13a", "Rpl14", "Rpl15", "Rpl17", "Rpl19", "Rps7", "Rps14"))
-
-vrn <- rownames(mat) %in% rownames(ann)
-
-row_anno = rowAnnotation(link = anno_mark(at = which(vrn),
-                                          side = "left",
-                                          labels = row.names(mat)[vrn],
-                                          labels_gp = gpar(fontsize = 12),
-                                          padding = unit(1, "mm")))
-
-#===============================================================================
-# Right annotation with celltype
-
-right_anno <- rowAnnotation(
-  Genes = rep(c("Neocortex", "Fiber tracts", 
-                "Thalamus", "Hippocampal region", 
-                "Caudoputamen", "common"), 
-              times = c(22, 66, 49, 67, 15, 64)),
-  col = list(Genes = c("Neocortex"="#1CBE4FFF",
-                       "Fiber tracts"= "#C4451CFF",
-                       "Thalamus"="#90AD1CFF",
-                       "Hippocampal region"="#782AB6FF",
-                       "Caudoputamen"="#1C7F93FF",
-                       "common"= "#B2A84B"))
-)
-
-length(row_split)
-nrow(mat)
-#===============================================================================
-# Make the matrix
-mat <- mat[ordered_genes, custom_order]
-mat <- as.matrix(mat)
-#===============================================================================
-# Make the heatmap
-ht1 <- Heatmap(mat,cluster_columns = F, cluster_rows = F,
-               row_split = row_split,
-               width = unit(4, "cm"), 
-               height = unit(25, "cm"),
-               column_order = custom_order,
-               show_column_names = F,
-               show_row_names = F,
-               col = c("#a9dfde", "red"),
-               bottom_annotation = ha,
-               left_annotation = row_anno,
-               right_annotation = right_anno,
-               name = "DEG",
-               heatmap_legend_param = list(
-                 title_gp = gpar(fontsize = 10,
-                                 fontface = "bold")
-               ))
-
-ht1
-
-pdf("/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Upregulated_genes_GO_enrichment_heatmap.pdf",
-    height = 12, width = 8)
-ht1
+pdf("/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Compare_Cluster_KEGG.pdf", height = 12, width = 10)
+dotplot(enrich_kegg, x="group")+facet_grid(~Cluster.1)+theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
-#===============================================================================
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Go enrichment heatmap with significant downregulated genes
+# Perform GO enrichment across all data
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+enrich_GO <- compareCluster(data=mydf, 
+                            entrez~group+Cluster,  
+                            fun="enrichGO",
+                            OrgDb = org.Mm.eg.db)
 
-# Filter significant downregulated genes
-DEG_sig_down <- list()
+
+enrich_GO_data <- enrich_GO@compareClusterResult %>% distinct(ID, Cluster, .keep_all = TRUE)
+
+enrich_GO@compareClusterResult <- enrich_GO_data
+
+enrichGO_simplify <- simplify(enrich_GO)
+
+GO_data <- enrichGO_simplify@compareClusterResult
+# Convert EntrezID to Gene Symbol
+GO_df <- setReadable(enrichGO_simplify, OrgDb = org.Mm.eg.db, keyType="ENTREZID")
+GO_data <- GO_df@compareClusterResult 
+# Store the data
+write.xlsx(GO_data, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Compare_Cluster_enrichGO_data.xlsx", rowNames = FALSE)
+
+
+pdf("/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Compare_Cluster_enrichGO.pdf", height = 12, width = 10)
+dotplot(enrichGO_simplify, x="group")+facet_grid(~Cluster.1)+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+dev.off()
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# genes detected in <10% spots per replicate
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# proportion of cell types in each biological replicate
+head(merged@meta.data)
+Assays(merged)
+Idents(merged) <- merged$class
+
+prop.table(table(Idents(merged), merged$orig.ident), margin = 2)
+
+# Get replicate info
+replicates <- unique(merged$orig.ident)
+
+# Initialize a list to store genes detected in <10% cells per replicate
+low_detected_genes <- list()
+
+DefaultAssay(merged) <- "RNA"
+# rep = "Control_1a"
+# 
+for (rep in replicates) {
+  # Subset Seurat object by replicate
+  rep_obj <- subset(merged, subset = orig.ident == rep)
+  
+  # expression matrix
+  mat <- GetAssayData(rep_obj, layer = "counts")
+  
+  # fraction of cells where gene is detected (count > 0)
+  detection_frac <- Matrix::rowSums(mat > 0) / ncol(mat)
+  
+  # Genes detected in less than 10% of cells
+  low_detected_genes[[rep]] <- names(detection_frac[detection_frac < 0.1])
+}
+
+pcb_low_detected_genes <- low_detected_genes[c( "PCB_1a","PCB_1b","PCB_2a","PCB_2b")]
+control_low_detected_genes <- low_detected_genes[c("Control_1a","Control_1b","Control_2a","Control_2b")]
+
+# Find genes that are lowly detected in ALL replicates
+genes_low_all_reps_pcb <- Reduce(intersect, pcb_low_detected_genes)
+genes_low_all_reps_control <- Reduce(intersect, control_low_detected_genes)
+
+# check how many genes
+length(genes_low_all_reps_pcb)
+length(genes_low_all_reps_control)
+
+# Combine the genes
+genes_low_all_reps <- union(genes_low_all_reps_control, genes_low_all_reps_pcb)
+
+
+# check if these genes were present in the significant DEG list
+DEG <- readRDS("/home/bbasu/LSS/lss_schatterj/PCB_data/DEG_regions_PCB.rds")
+
+# Store significant DEGs across regions
+DEG_sig <- list()
 for(i in names(DEG)){
   cluster = i
   message("Doing analysis for ", cluster)
   cellType.DEGs = DEG[[cluster]]
   gene.list <- cellType.DEGs %>%
-    dplyr::filter(avg_log2FC < -0.20 & p_val_adj < 0.05)%>%
-    tibble::rownames_to_column(var = "gene")%>%
-    dplyr::mutate(Cluster = cluster)
-  DEG_sig_down[[cluster]] <- gene.list
+    dplyr::filter(abs(avg_log2FC) > 0.20 & p_val_adj < 0.05)%>%
+    tibble::rownames_to_column(var = "gene")
+  DEG_sig[[cluster]] <- gene.list
 }
 
-# Make a heatmap of the downregulated genes across the clusters
-#===============================================================================
-# Extract logFC matrix (per cluster)
-expr_mat <- DEG_sig_down %>%
-  bind_rows()%>%
-  dplyr::select(gene, avg_log2FC, Cluster)%>%
-  spread(key = "gene", value = "avg_log2FC")%>%
-  tibble::column_to_rownames(var = "Cluster")%>%
-  t()
 
-# Replace NA value with 0
-expr_mat[is.na(expr_mat)] <- 0
+# lowly-expressed DEGs per cluster
+low_expr_deg_by_cluster <- list()
 
-# Replace all negative values with 1 to show one color with red
-expr_mat[expr_mat < 0] <- 1
+# Loop over clusters
+for (clust in names(DEG_sig)) {
+  
+  low_expr_genes <- genes_low_all_reps
+  deg_genes <- DEG_sig[[clust]]
+  
+  # Find overlap
+  matched_genes <- intersect(low_expr_genes, deg_genes$gene)
+  
+  # Store
+  low_expr_deg_by_cluster[[clust]] <- matched_genes
+  
+}
 
-expr_mat <- as.data.frame(expr_mat)
-mat <- expr_mat
-colnames(mat)
-#===============================================================================
-# Order the column names of the matrix
-custom_order <- c("Neocortex", "Fiber tracts", "Thalamus", "Hippocampal region", "Caudoputamen")
-mat <- mat[, custom_order]
-
-#===============================================================================
-# Reorder the rows to first show unique genes, then common genes
-common_genes <- row.names(mat[rowSums(mat)> 1, ])
-unique_genes <- row.names(mat[rowSums(mat)== 1, ])
-
-# filter the matrix that shows unique genes
-unique_gene_mat <- mat[unique_genes, ]
-
-# Now filter unique genes from each cluster
-neocortex.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Neocortex"] == 1, ])
-fiber.tracts.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Fiber tracts"] == 1, ])
-thalamus.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Thalamus"] == 1, ])
-hippocampus.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Hippocampal region"] == 1, ])
-caudoputamen.genes <- rownames(unique_gene_mat[unique_gene_mat[, "Caudoputamen"] == 1, ])
-
-# Gene order [First the unique genes from each cluster and then the common genes]  
-ordered_genes <- c(neocortex.genes, fiber.tracts.genes,
-                   thalamus.genes, hippocampus.genes,
-                   caudoputamen.genes, common_genes)
-
-#===============================================================================
-# Split the heatmap at desired rows (at each cluster's unique genes) so that it would be easy to show GO terms
-length(neocortex.genes) #70
-length(fiber.tracts.genes) #46
-length(thalamus.genes) #74
-length(hippocampus.genes) #25
-length(caudoputamen.genes) #18
-length(common_genes) #49
+low_expr_deg_by_cluster$Neocortex
 
 
-row_split <- rep(c("Neocortex", "Fiber tracts", 
-                   "Thalamus", "Hippocampal region", 
-                   "Caudoputamen", "common"), 
-                 times = c(70, 46, 74, 25, 18, 49))
-
-# Turn into a factor with custom order: 
-row_split <- factor(row_split, levels = c("Neocortex", "Fiber tracts", "Thalamus", 
-                                          "Hippocampal region", "Caudoputamen", "common"))
-
-
-#===============================================================================
-# Annotate the GO terms associated with unique and common genes
-
-# Perform GO enrichment on the unique upregulated genes
-gene_list <- list("Neocortex" = neocortex.genes, 
-                  "Fiber tracts" = fiber.tracts.genes,
-                  "Thalamus" = thalamus.genes, 
-                  "Hippocampal region" = hippocampus.genes,
-                  "Caudoputamen" = caudoputamen.genes,
-                  "common.genes" = common_genes)
-
-# Trycatch was used to ignore errors associated with any cluster
-go_results <- lapply(gene_list, function(genes){
-  tryCatch(ego <- enrichGO(gene          = genes,
-                           OrgDb         = org.Mm.eg.db,
-                           ont           = "MF",
-                           pAdjustMethod = "BH",
-                           pvalueCutoff  = 0.01,
-                           qvalueCutoff  = 0.05,
-                           keyType = "SYMBOL",
-                           readable      = TRUE), error=function(e) NULL)
-  tryCatch(ego@result, error=function(e) NULL)
-})
-
-# Check the pathways and the gene names (genes to annotate!)
-neocortex_GO <- go_results$Neocortex
-fiber_tracts_GO <- go_results$`Fiber tracts`
-thalamus_GO <- go_results$Thalamus
-hippo_GO <- go_results$`Hippocampal region`
-caudoputamen_GO <- go_results$Caudoputamen
-common_GO <- go_results$common.genes
-
-
-# GO_terms = lapply(go_results, function(df) {
-#   terms <- df$Description %>% head(3)
-# })
-
-# Save the MF enrichment result
-write.xlsx(go_results, file = "/home/bbasu/LSS/lss_schatterj/PCB_data/Downregulated_GO_MF_all_regions_unique_common.xlsx", 
-           rowNames = F)
-
-#===============================================================================
-# colors_celltype <- paletteer::paletteer_d("ggthemes::Tableau_10")
-
-# Annotate celltypes
-ha = HeatmapAnnotation(df = data.frame(Celltypes = c("Neocortex", "Fiber tracts", "Thalamus", 
-                                                     "Hippocampal region", "Caudoputamen")),
-                       col = list(Celltypes = c("Neocortex"="#1CBE4FFF",
-                                                "Fiber tracts"= "#C4451CFF",
-                                                "Thalamus"="#90AD1CFF",
-                                                "Hippocampal region"="#782AB6FF",
-                                                "Caudoputamen"="#1C7F93FF")),
-                       annotation_legend_param = list(title = "Celltype",
-                                                      title_gp = gpar(fontsize = 10,
-                                                                      fontface = "bold")),
-                       annotation_name_side = "left",
-                       simple_anno_size = unit(2, "mm"))
-
-#===============================================================================
-# Annotate gene names
-mat <- mat[ordered_genes, custom_order]
-
-ann <- mat %>%
-  dplyr::filter(rownames(mat) %in% c("Add2","Camk2d","Ewsr1","Map2", "Marcks", "Syt7", "Syt17", "Syt4",
-                                     "Chrna4","Ghitm","Hcn2","Kcna2","Kcnab2","Kcnc1","Scn1a","Tmbim6","Ywhag","Ywhaz","Mef2a","Syt1","Tcf4","Ywhah",
-                                     "Pde10a","Pde1b",
-                                     "Mal","Mbp","Mobp","Plp1", "Ap2a2","App","Cltc","Dnm1","Actb","Ank2","Camk2b","Tuba1a","Tubb2a"))
-
-vrn <- rownames(mat) %in% rownames(ann)
-
-row_anno = rowAnnotation(link = anno_mark(at = which(vrn),
-                                          side = "left",
-                                          labels = row.names(mat)[vrn],
-                                          labels_gp = gpar(fontsize = 12),
-                                          padding = unit(1, "mm")))
-
-#===============================================================================
-# Right annotation with celltype
-
-right_anno <- rowAnnotation(
-  Genes = rep(c("Neocortex", "Fiber tracts", 
-                "Thalamus", "Hippocampal region", 
-                "Caudoputamen", "common"), 
-              times = c(70, 46, 74, 25, 18, 49)),
-  col = list(Genes = c("Neocortex"="#1CBE4FFF",
-                       "Fiber tracts"= "#C4451CFF",
-                       "Thalamus"="#90AD1CFF",
-                       "Hippocampal region"="#782AB6FF",
-                       "Caudoputamen"="#1C7F93FF",
-                       "common"= "#B2A84B"))
-)
-
-length(row_split)
-nrow(mat)
-#===============================================================================
-# Make the matrix
-mat <- mat[ordered_genes, custom_order]
-mat <- as.matrix(mat)
-#===============================================================================
-# Make the heatmap
-ht1 <- Heatmap(mat,cluster_columns = F, cluster_rows = F,
-               row_split = row_split,
-               width = unit(4, "cm"), 
-               height = unit(25, "cm"),
-               column_order = custom_order,
-               show_column_names = F,
-               show_row_names = F,
-               col = c("#a9dfde", "#274580"),
-               bottom_annotation = ha,
-               left_annotation = row_anno,
-               right_annotation = right_anno,
-               name = "DEG",
-               heatmap_legend_param = list(
-                 title_gp = gpar(fontsize = 10,
-                                 fontface = "bold")
-               ))
-
-ht1
-
-pdf("/home/bbasu/LSS/lss_schatterj/PCB_data/plots/Downregulated_genes_GO_enrichment_heatmap.pdf",
-    height = 12, width = 8)
-ht1
-dev.off()
-#===============================================================================
+# No gene was found in the DEG list of major brain regions which was detected in less than 10% of spots of each replicate !!
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Export normalized gene expression data
